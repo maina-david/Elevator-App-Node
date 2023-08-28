@@ -33,13 +33,13 @@ ElevatorLog.init({
         type: DataTypes.INTEGER
     },
     state: {
-        type: DataTypes.STRING(10)
+        type: DataTypes.STRING
     },
     direction: {
-        type: DataTypes.STRING(2)
+        type: DataTypes.STRING
     },
     action: {
-        type: DataTypes.STRING(5)
+        type: DataTypes.STRING
     },
     details: {
         type: DataTypes.TEXT

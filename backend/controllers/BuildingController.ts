@@ -7,10 +7,10 @@ import PendingElevatorCall from '../models/PendingElevatorCall'
 export const createBuilding = async (req: Request, res: Response) => {
     const { name, number_of_floors, active, elevators } = req.body
 
-    await Building.sync()
-    await Elevator.sync()
-    await ElevatorLog.sync()
-    await PendingElevatorCall.sync()
+    await Building.sync({ alter: true })
+    await Elevator.sync({ alter: true })
+    await ElevatorLog.sync({ alter: true })
+    await PendingElevatorCall.sync({ alter: true })
 
     try {
         const building = await Building.create({
@@ -58,9 +58,6 @@ export const createElevatorForBuilding = async (req: Request, res: Response) => 
 
         const elevator = await Elevator.create({
             name,
-            currentState: 'idle',
-            currentFloor: 0,
-            direction: null,
             BuildingId: buildingId
         })
 
@@ -144,7 +141,7 @@ const moveElevatorToFloor = async (logEntry: ElevatorLog, targetFloor: number) =
         }
 
         const currentFloor = logEntry.currentFloor
-        const direction = currentFloor < targetFloor ? 'MovingUp' : 'MovingDown'
+        const direction = currentFloor < targetFloor ? 'up' : 'down'
         const movementStep = currentFloor < targetFloor ? 1 : -1
 
         // Simulate elevator movement
@@ -179,7 +176,7 @@ const simulateMovement = async (elevatorId: number, currentFloor: number, target
         await ElevatorLog.create({
             ElevatorId: elevatorId,
             currentFloor,
-            state: direction,
+            state: direction === 'up' ? 'MovingUp' : 'MovingDown',
             direction,
             action: 'move',
             details: `Moving ${direction} to floor ${currentFloor + movementStep}`,
