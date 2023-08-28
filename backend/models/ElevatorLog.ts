@@ -3,23 +3,32 @@ import sequelize from "../config/database"
 import Elevator from "./Elevator"
 
 interface ElevatorLogAttributes {
+    ElevatorId: number,
     currentFloor: number,
     state: string,
     direction: string | null,
-    action: string,
-    details: string
+    action: string | null,
+    details: string | null
 }
 
 class ElevatorLog extends Model<ElevatorLogAttributes> implements ElevatorLogAttributes {
     declare id: CreationOptional<number>
+    public ElevatorId!: number
     public currentFloor!: number
     public state!: string
     public direction!: string | null
-    public action!: string
-    public details!: string
+    public action!: string | null
+    public details!: string | null
 }
 
 ElevatorLog.init({
+    ElevatorId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Elevator,
+            key: 'id'
+        }
+    },
     currentFloor: {
         type: DataTypes.INTEGER
     },
@@ -41,7 +50,5 @@ ElevatorLog.init({
         modelName: 'ElevatorLog'
     }
 )
-
-Elevator.hasMany(ElevatorLog)
 
 export default ElevatorLog

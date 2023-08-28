@@ -18,13 +18,22 @@ export const createBuilding = async (req: Request, res: Response) => {
         })
 
         if (elevators && elevators.length > 0) {
-            await Elevator.bulkCreate(
+            const createdElevators = await Elevator.bulkCreate(
                 elevators.map((elevatorName: string) => ({
                     name: elevatorName,
                     currentState: 'idle',
                     BuildingId: building.id,
                 }))
             )
+
+            // Initialize elevator logs for each created elevator
+            for (const elevator of createdElevators) {
+                await ElevatorLog.create({
+                    ElevatorId: elevator.id,
+                    currentFloor: 0, // Initial floor
+                    state: 'idle', // Initial state
+                })
+            }
         }
 
         res.status(201).json({ message: 'Building and elevators created successfully' })
@@ -33,6 +42,7 @@ export const createBuilding = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Internal server error' })
     }
 }
+
 
 export const createElevatorForBuilding = async (req: Request, res: Response) => {
     const { buildingId, name } = req.body
@@ -50,6 +60,12 @@ export const createElevatorForBuilding = async (req: Request, res: Response) => 
             currentFloor: 0,
             direction: null,
             BuildingId: buildingId
+        })
+
+        await ElevatorLog.create({
+            ElevatorId: elevator.id,
+            currentFloor: 0,
+            state: 'idle'
         })
 
         res.status(201).json({ message: 'Elevator created successfully' })
@@ -70,33 +86,42 @@ export const callElevator = async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'Elevator not found' })
         }
 
-        // Update elevator state, direction, and action in ElevatorLog
-        const logEntry = await ElevatorLog.create({
-            currentFloor: elevator.currentFloor, // Current floor of the elevator
-            state: elevator.currentState,
-            direction: elevator.direction,
-            action: 'Called',
-            details: `Called to target floor ${targetFloor}`,
+        // Find latest Elevator log
+        const latestElevatorLog = await ElevatorLog.findOne({
+            where: {
+                ElevatorId: elevatorId,
+            },
+            order: [['createdAt', 'DESC']],
         })
 
-        // Update elevator properties and save
-        elevator.currentState = 'Moving'
-        elevator.direction = targetFloor > elevator.currentFloor ? 'Up' : 'Down'
-        elevator.currentFloor = targetFloor
-        await elevator.save()
+        if (latestElevatorLog) {
+            const elevatorStatus = latestElevatorLog.state
 
-        // Log the elevator movement
-        await ElevatorLog.create({
-            currentFloor: elevator.currentFloor,
-            state: elevator.currentState,
-            direction: elevator.direction,
-            action: 'Moving',
-            details: `Moving ${elevator.direction} to target floor ${targetFloor}`,
-        })
+            if (elevatorStatus !== "idle") {
+                // If elevator is not idle, queue the call
+                // Implement your queue logic here
+            } else {
+                // Elevator is idle, process the call
+                // Log the elevator call
+                const newLogEntry = await ElevatorLog.create({
+                    currentFloor: latestElevatorLog.currentFloor,
+                    state: "moving",
+                    direction: targetFloor > latestElevatorLog.currentFloor ? "up" : "down",
+                    action: "call",
+                    details: `Called to floor ${targetFloor}`,
+                    ElevatorId: elevatorId,
+                })
 
-        res.status(200).json({ message: 'Elevator called and moving' })
+                // Return a success response
+                res.status(200).json({ message: 'Elevator call processed successfully' })
+            }
+        } else {
+            // Handle case where there are no elevator logs
+            // This might be the initial state of the elevator
+        }
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Internal server error' })
     }
 }
+

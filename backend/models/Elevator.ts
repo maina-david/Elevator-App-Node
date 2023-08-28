@@ -2,6 +2,7 @@
 import { CreationOptional, DataTypes, Model } from 'sequelize'
 import sequelize from '../config/database'
 import Building from './Building'
+import ElevatorLog from './ElevatorLog'
 
 interface ElevatorAttributes {
     name: string
