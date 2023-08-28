@@ -10,6 +10,7 @@ export const createBuilding = async (req: Request, res: Response) => {
     await Building.sync()
     await Elevator.sync()
     await ElevatorLog.sync()
+    await PendingElevatorCall.sync()
 
     try {
         const building = await Building.create({
