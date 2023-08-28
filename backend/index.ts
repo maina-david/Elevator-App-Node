@@ -19,7 +19,7 @@ const httpServer = createServer(app)
 // Initialize Socket.IO
 const io = new Server(httpServer, {
     cors: {
-        origin: 'http://localhost:8080', // Replace with the allowed origin
+        origin: 'http://localhost:8080',
     },
 })
 
