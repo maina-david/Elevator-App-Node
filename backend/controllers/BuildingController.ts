@@ -46,7 +46,6 @@ export const createBuilding = async (req: Request, res: Response) => {
     }
 }
 
-
 export const createElevatorForBuilding = async (req: Request, res: Response) => {
     const { buildingId, name } = req.body
 
@@ -93,13 +92,13 @@ export const callElevator = async (req: Request, res: Response) => {
             where: {
                 ElevatorId: elevatorId,
             },
-            order: [['createdAt', 'DESC']],
+            order: [['id', 'DESC']],
         })
 
         if (latestElevatorLog) {
             const elevatorStatus = latestElevatorLog.state
 
-            if (elevatorStatus !== "idle") {
+            if (elevatorStatus != "idle") {
                 // If elevator is not idle, queue the call
                 await PendingElevatorCall.create({
                     ElevatorId: elevatorId,

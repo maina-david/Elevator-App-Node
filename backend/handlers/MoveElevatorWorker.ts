@@ -18,7 +18,7 @@ const moveElevatorToFloor = async (logEntry: ElevatorLog) => {
             return
         }
 
-        const currentFloor = logEntry.currentFloor
+        let currentFloor = logEntry.currentFloor
         const targetFloor = logEntry.targetFloor as number
 
         const direction = currentFloor < targetFloor ? 'up' : 'down'
@@ -51,6 +51,7 @@ const moveElevatorToFloor = async (logEntry: ElevatorLog) => {
     }
 }
 
+// Helper function to simulate movement
 const simulateMovement = async (elevatorId: number, currentFloor: number, targetFloor: number, direction: string, movementStep: number) => {
     while (currentFloor !== targetFloor) {
         await sleep(5000) // Simulate 5 seconds of movement time
@@ -58,6 +59,7 @@ const simulateMovement = async (elevatorId: number, currentFloor: number, target
         await ElevatorLog.create({
             ElevatorId: elevatorId,
             currentFloor,
+            targetFloor,
             state: direction === 'up' ? 'MovingUp' : 'MovingDown',
             direction,
             action: 'move',
@@ -68,6 +70,7 @@ const simulateMovement = async (elevatorId: number, currentFloor: number, target
     }
 }
 
+// Helper function to simulate actions
 const simulateAction = async (elevatorId: number, currentFloor: number, state: string, action: string, details: string, delay = 0) => {
     if (delay > 0) {
         await sleep(delay)
@@ -76,6 +79,7 @@ const simulateAction = async (elevatorId: number, currentFloor: number, state: s
     await ElevatorLog.create({
         ElevatorId: elevatorId,
         currentFloor,
+        targetFloor: currentFloor,
         state,
         direction: null,
         action,
@@ -83,5 +87,5 @@ const simulateAction = async (elevatorId: number, currentFloor: number, state: s
     })
 }
 
-// Simulate sleep using promises
+// Helper function to simulate sleep using promises
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
