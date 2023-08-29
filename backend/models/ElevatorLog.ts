@@ -5,6 +5,7 @@ import Elevator from "./Elevator"
 interface ElevatorLogAttributes {
     ElevatorId: number,
     currentFloor: number,
+    targetFloor: number | null,
     state: string,
     direction: string | null,
     action: string | null,
@@ -15,6 +16,7 @@ class ElevatorLog extends Model<ElevatorLogAttributes> implements ElevatorLogAtt
     declare id: CreationOptional<number>
     public ElevatorId!: number
     public currentFloor!: number
+    public targetFloor!: number | null
     public state!: string
     public direction!: string | null
     public action!: string | null
@@ -30,6 +32,9 @@ ElevatorLog.init({
         }
     },
     currentFloor: {
+        type: DataTypes.INTEGER
+    },
+    targetFloor: {
         type: DataTypes.INTEGER
     },
     state: {
