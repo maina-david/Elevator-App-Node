@@ -141,14 +141,17 @@ const moveElevatorToFloor = async (logEntry: ElevatorLog, targetFloor: number) =
         }
 
         const currentFloor = logEntry.currentFloor
+
         const direction = currentFloor < targetFloor ? 'up' : 'down'
         const movementStep = currentFloor < targetFloor ? 1 : -1
 
-        // Simulate elevator movement
-        await simulateMovement(elevator.id, currentFloor, targetFloor, direction, movementStep)
+        if (currentFloor !== targetFloor) {
+            // Simulate elevator movement
+            await simulateMovement(elevator.id, currentFloor, targetFloor, direction, movementStep)
 
-        // Elevator reached the target floor, log and perform actions
-        await simulateAction(elevator.id, targetFloor, 'Stopped', 'stop', `Elevator reached target floor ${targetFloor}`)
+            // Elevator reached the target floor, log and perform actions
+            await simulateAction(elevator.id, targetFloor, 'Stopped', 'stop', `Elevator reached target floor ${targetFloor}`)
+        }
 
         // Simulate door actions
         const doorActions = [
